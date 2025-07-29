@@ -1,0 +1,14 @@
+sklearn 
+numpy
+pandas
+flask
+flask-cors
+joblib
+scikit-learn
+matplotlib
+seaborn
+flask-restful
+flask-sqlalchemy
+flask-migrate
+flask-login
+flask-wtf
