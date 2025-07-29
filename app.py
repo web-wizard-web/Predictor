@@ -3,7 +3,7 @@ import joblib
 import numpy as np
 
 # Load the trained RandomForest model
-model = joblib.load("model.pkl")  # Make sure 'model.pkl' is in the same folder
+model = joblib.load("student_performance_model.pkl")  # Make sure 'model.pkl' is in the same folder
 
 # Main UI
 st.set_page_config(page_title="Student Pass/Fail Predictor", layout="wide")
