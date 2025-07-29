@@ -4,3 +4,4 @@ pandas
 numpy
 joblib
 flask
+flask_cors
