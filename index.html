@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Pass/Fail Prediction</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input, select {
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    input[readonly] {
+      background-color: #f0f0f0;
+    }
+
+    button {
+      margin-top: 2rem;
+      padding: 0.75rem 2rem;
+      background: #4caf50;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      font-size: 1.1rem;
+    }
+
+    button:hover {
+      background: #388e3c;
+    }
+
+    #result {
+      margin-top: 2rem;
+      padding: 1rem;
+      border-radius: 10px;
+      font-size: 1.1rem;
+    }
+
+    .pass {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .fail {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    ul {
+      padding-left: 1.2rem;
+    }
+
+    a {
+      color: #1565c0;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .low-score {
+      border: 2px solid red !important;
+      color: red !important;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🎓 Student Pass/Fail Prediction Dashboard</h2>
+    <div class="form-grid">
+      <div><label>Failures</label><input type="number" id="failures" required></div>
+      <div><label>Core Python Marks</label><input type="number" id="core_python_total" required></div>
+      <div><label>Advanced Java Marks</label><input type="number" id="advanced_java_total" required></div>
+      <div><label>Software Engineering Marks</label><input type="number" id="software_engg_total" required></div>
+      <div><label>DWDM Marks</label><input type="number" id="dwdm_total" required></div>
+      <div><label>Overall Total</label><input type="number" id="overall_total" readonly></div>
+      <div><label>CGPA</label><input type="number" id="cgpa" readonly></div>
+      <div><label>Previous CGPA</label><input type="number" id="prev_cgpa" step="0.01" required></div>
+      <div><label>Study Time (hrs/week)</label><input type="number" id="study_time" required></div>
+      <div><label>Parental Support</label>
+        <select id="parental_support">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      <div><label>Internet Access</label>
+        <select id="internet_access">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      <div><label>Extra-Curricular Activities</label>
+        <select id="extra_curricular">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="predictBtn">Predict Outcome</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const subjectIds = [
+      "core_python_total",
+      "advanced_java_total",
+      "software_engg_total",
+      "dwdm_total"
+    ];
+
+    subjectIds.forEach(id => {
+      document.getElementById(id).addEventListener("input", updateCalculations);
+    });
+
+    function updateCalculations() {
+      const core = +document.getElementById("core_python_total").value || 0;
+      const java = +document.getElementById("advanced_java_total").value || 0;
+      const se = +document.getElementById("software_engg_total").value || 0;
+      const dwdm = +document.getElementById("dwdm_total").value || 0;
+      const total = core + java + se + dwdm;
+
+      const totalField = document.getElementById("overall_total");
+      const cgpaField = document.getElementById("cgpa");
+
+      totalField.value = total;
+      totalField.classList.toggle("low-score", total < 140);
+
+      const cgpa = ((total / 400) * 10).toFixed(2);
+      cgpaField.value = isNaN(cgpa) ? "" : cgpa;
+      cgpaField.classList.toggle("low-score", cgpa < 5);
+    }
+
+    document.getElementById("predictBtn").addEventListener("click", function () {
+      const core = +document.getElementById("core_python_total").value;
+      const java = +document.getElementById("advanced_java_total").value;
+      const se = +document.getElementById("software_engg_total").value;
+      const dwdm = +document.getElementById("dwdm_total").value;
+      const total = core + java + se + dwdm;
+
+      const payload = {
+        failures: +document.getElementById("failures").value,
+        core_python_total: core,
+        advanced_java_total: java,
+        software_engg_total: se,
+        dwdm_total: dwdm,
+        overall_total: total,
+        cgpa: +document.getElementById("cgpa").value,
+        prev_cgpa: +document.getElementById("prev_cgpa").value,
+        study_time: +document.getElementById("study_time").value,
+        parental_support: document.getElementById("parental_support").value,
+        internet_access: document.getElementById("internet_access").value,
+        extra_curricular: document.getElementById("extra_curricular").value
+      };
+
+      fetch("http://localhost:5000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        const resultDiv = document.getElementById("result");
+        const result = `Prediction: <strong>${data.prediction.toUpperCase()}</strong>`;
+        resultDiv.className = data.prediction.toLowerCase() === "pass" ? "pass" : "fail";
+        resultDiv.innerHTML = `<p>${result}</p>`;
+
+        if (data.prediction.toLowerCase() === "fail") {
+          resultDiv.innerHTML += `
+            <p>📚 Resources to help improve:</p>
+            <ul>
+              <li><a href="https://www.w3schools.com/python/" target="_blank">Python – W3Schools</a></li>
+              <li><a href="https://www.javatpoint.com/java-tutorial" target="_blank">Java – JavaTpoint</a></li>
+              <li><a href="https://www.geeksforgeeks.org/software-engineering/" target="_blank">Software Engg – GFG</a></li>
+              <li><a href="https://nptel.ac.in/courses/106/106/106106089/" target="_blank">DWDM – NPTEL</a></li>
+            </ul>
+          `;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
