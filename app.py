@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 
 # Load your model once
-with open("model.pkl", "rb") as f:
+with open("student_performance_model.pkl", "rb") as f:
     model = pickle.load(f)
 
 st.set_page_config(page_title="Student Pass/Fail Predictor", layout="wide")
